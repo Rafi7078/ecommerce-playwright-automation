@@ -14,8 +14,9 @@ export default defineConfig({
   reporter: 'html',
 
   use: {
-    trace: 'on-first-retry',
-  },
+  baseURL: 'https://automationexercise.com',
+  trace: 'on-first-retry',
+},
 
   projects: process.env.CI
   ? [
