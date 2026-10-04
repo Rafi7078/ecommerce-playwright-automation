@@ -20,7 +20,7 @@ export class ProductPage {
   }
 
 
-  async searchProduct(productName: string): Promise<void> {
+ async searchProduct(productName: string): Promise<void> {
 
     await this.page
       .locator('#search_product')
@@ -29,11 +29,6 @@ export class ProductPage {
     await this.page
       .locator('#submit_search')
       .click();
-
-    await expect(
-      this.page.locator('.features_items')
-    ).toBeVisible();
-
 }
 
 
@@ -47,14 +42,30 @@ export class ProductPage {
 
 }
 
+async viewProduct(productName: string): Promise<void> {
 
-  async viewProduct(productName: string): Promise<void> {
+  const product = this.page
+    .locator('.single-products')
+    .filter({
+      hasText: productName
+    })
+    .first();
 
-    await this.page
-      .getByText(productName)
-      .first()
-      .click();
 
-  }
+  await expect(product).toBeVisible();
+
+
+  await product.hover();
+
+
+  await this.page
+    .locator('a[href*="/product_details/"]')
+    .first()
+    .click();
+
+
+  await this.page.waitForURL(/product_details/);
+
+}
 
 }
