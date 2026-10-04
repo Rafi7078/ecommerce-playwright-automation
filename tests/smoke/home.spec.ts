@@ -1,9 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { HomePage } from '../../pages/HomePage';
 
 test.describe('Home Page Smoke Tests', () => {
   test('should load the home page successfully', async ({ page }) => {
-    await page.goto('/');
+    const homePage = new HomePage(page);
 
-    await expect(page).toHaveTitle(/Automation Exercise/i);
+    await homePage.navigate();
+    await homePage.verifyHomePageLoaded();
   });
 });
