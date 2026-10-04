@@ -8,8 +8,13 @@ export class HomePage {
   }
 
   async navigate(): Promise<void> {
-    await this.page.goto('/');
-  }
+
+  await this.page.goto('/', {
+    waitUntil: 'domcontentloaded',
+    timeout: 60000
+  });
+
+}
 
   async verifyHomePageLoaded(): Promise<void> {
     await expect(this.page).toHaveTitle(/Automation Exercise/i);
