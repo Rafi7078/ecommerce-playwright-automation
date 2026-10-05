@@ -44,28 +44,28 @@ export class ProductPage {
 
 async viewProduct(productName: string): Promise<void> {
 
-  const product = this.page
+
+  await this.page
     .locator('.single-products')
     .filter({
       hasText: productName
     })
+    .first()
+    .scrollIntoViewIfNeeded();
+
+
+  const viewButton = this.page
+    .locator('a[href*="product_details"]')
     .first();
 
 
-  await expect(product).toBeVisible();
+  await expect(viewButton).toBeVisible();
 
 
-  await product.hover();
-
-
-  await this.page
-    .locator('a[href*="/product_details/"]')
-    .first()
-    .click();
+  await viewButton.click();
 
 
   await this.page.waitForURL(/product_details/);
 
 }
-
 }
