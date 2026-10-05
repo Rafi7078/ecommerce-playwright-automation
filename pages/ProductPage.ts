@@ -10,13 +10,23 @@ export class ProductPage {
   }
 
 
-  async navigate(): Promise<void> {
+async navigate(): Promise<void> {
 
-    await this.page
-      .getByText('Products')
-      .click();
 
-  }
+  await this.page.goto('/products', {
+    waitUntil: 'domcontentloaded',
+    timeout: 60000
+  });
+
+
+  await expect(
+    this.page.locator('#search_product')
+  ).toBeVisible({
+    timeout: 30000
+  });
+
+
+}
 
 
   async verifyProductPageLoaded(): Promise<void> {
@@ -27,19 +37,40 @@ export class ProductPage {
   }
 
 
-  async searchProduct(productName: string): Promise<void> {
-
-    await this.page
-      .locator('#search_product')
-      .fill(productName);
+async searchProduct(productName: string): Promise<void> {
 
 
-    await this.page
-      .locator('#submit_search')
-      .click();
+  const searchBox = this.page.locator('#search_product');
 
-  }
 
+  await searchBox.waitFor({
+    state: 'visible'
+  });
+
+
+  await searchBox.fill(productName);
+
+
+  await this.page
+    .locator('#submit_search')
+    .click({
+      noWaitAfter: true
+    });
+
+
+  await this.page.waitForURL(
+    /products\?search=/,
+    {
+      timeout: 60000
+    }
+  );
+
+
+  await expect(
+    this.page.locator('.productinfo')
+  ).toBeVisible();
+
+}
 
   async verifyProductVisible(productName: string): Promise<void> {
 

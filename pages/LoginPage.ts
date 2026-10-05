@@ -17,7 +17,9 @@ export class LoginPage {
     this.passwordInput = page.locator('input[data-qa="login-password"]');
     this.loginButton = page.locator('button[data-qa="login-button"]');
 
-    this.errorMessage = page.getByText('Your email or password is incorrect!');
+    this.errorMessage = page.locator(
+      'p:has-text("Your email or password is incorrect")'
+    );
   }
 
 
@@ -43,7 +45,7 @@ export class LoginPage {
   async verifyLoginError(): Promise<void> {
 
     await expect(this.errorMessage)
-      .toContainText('Your email or password is incorrect!');
+      .toContainText('Your email or password is incorrect');
 
   }
 

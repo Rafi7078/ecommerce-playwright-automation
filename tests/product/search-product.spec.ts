@@ -11,7 +11,9 @@ test.describe('Product Tests', () => {
     const productPage = new ProductPage(page);
 
 
-    await page.goto('/');
+    await page.goto('/', {
+  waitUntil: 'domcontentloaded'
+});
 
 
     await productPage.navigate();
