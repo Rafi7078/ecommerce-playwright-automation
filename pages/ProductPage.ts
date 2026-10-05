@@ -12,9 +12,16 @@ export class ProductPage {
 
   async navigate(): Promise<void> {
 
-    await this.page
-      .getByText('Products')
-      .click();
+    await this.page.goto('/products', {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000
+    });
+
+    await expect(
+      this.page.locator('#search_product')
+    ).toBeVisible({
+      timeout: 30000
+    });
 
   }
 
@@ -29,14 +36,37 @@ export class ProductPage {
 
   async searchProduct(productName: string): Promise<void> {
 
-    await this.page
-      .locator('#search_product')
-      .fill(productName);
+    const searchBox = this.page.locator('#search_product');
+
+    const searchButton = this.page.locator('#submit_search');
 
 
-    await this.page
-      .locator('#submit_search')
-      .click();
+    await expect(searchBox)
+      .toBeVisible({
+        timeout: 30000
+      });
+
+
+    await searchBox.fill(productName);
+
+
+    await searchButton.click({
+      noWaitAfter: true
+    });
+
+
+    const searchedProduct = this.page
+      .locator('.productinfo')
+      .filter({
+        hasText: productName
+      })
+      .first();
+
+
+    await expect(searchedProduct)
+      .toBeVisible({
+        timeout: 30000
+      });
 
   }
 
@@ -52,13 +82,14 @@ export class ProductPage {
 
 
     await expect(product)
-      .toBeVisible();
+      .toBeVisible({
+        timeout: 10000
+      });
 
   }
 
 
   async viewProduct(productName: string): Promise<void> {
-
 
     const product = this.page
       .locator('.single-products')
@@ -69,11 +100,12 @@ export class ProductPage {
 
 
     await expect(product)
-      .toBeVisible();
+      .toBeVisible({
+        timeout: 10000
+      });
 
 
-    await product
-      .scrollIntoViewIfNeeded();
+    await product.scrollIntoViewIfNeeded();
 
 
     const viewButton = this.page
@@ -82,46 +114,104 @@ export class ProductPage {
 
 
     await expect(viewButton)
-      .toBeVisible();
+      .toBeVisible({
+        timeout: 10000
+      });
 
 
-    await viewButton.click();
+    await viewButton.click({
+      noWaitAfter: true
+    });
 
 
-    await this.page
-      .waitForURL(/product_details/);
+    await expect(
+      this.page.locator('.product-information')
+    ).toBeVisible({
+      timeout: 30000
+    });
 
   }
 
 
- async addToCart(productName: string): Promise<void> {
+  async addToCart(productName: string): Promise<void> {
 
-  const product = this.page
-    .locator('.single-products')
-    .filter({
-      hasText: productName
-    })
-    .first();
-
-
-  await expect(product).toBeVisible();
+    const product = this.page
+      .locator('.single-products')
+      .filter({
+        hasText: productName
+      })
+      .first();
 
 
-  await product.hover();
+    await expect(product)
+      .toBeVisible({
+        timeout: 15000
+      });
 
 
-  await product
-    .locator('.add-to-cart')
-    .first()
-    .click();
+    await product.scrollIntoViewIfNeeded();
 
 
-  await this.page
-    .getByText('Your product has been added to cart')
-    .waitFor();
+    await product.hover();
 
 
-}
+    // Use only the visible Add to Cart button
+    const addToCartButton = product
+      .locator('a.add-to-cart:visible')
+      .first();
 
+
+    await expect(addToCartButton)
+      .toBeVisible({
+        timeout: 10000
+      });
+
+
+    await addToCartButton.click();
+
+
+    // Add-to-cart modal
+    const cartModal = this.page.locator('#cartModal');
+
+
+    await expect(cartModal)
+      .toBeVisible({
+        timeout: 15000
+      });
+
+
+    await expect(
+      cartModal.getByText(
+        'Your product has been added to cart'
+      )
+    ).toBeVisible({
+      timeout: 10000
+    });
+
+
+    // Continue Shopping button
+    const continueShoppingButton = cartModal
+      .getByRole('button', {
+        name: 'Continue Shopping'
+      });
+
+
+    await expect(continueShoppingButton)
+      .toBeVisible({
+        timeout: 10000
+      });
+
+
+    await continueShoppingButton.click();
+
+
+    // Important:
+    // wait until modal is completely closed
+    await expect(cartModal)
+      .toBeHidden({
+        timeout: 15000
+      });
+
+  }
 
 }

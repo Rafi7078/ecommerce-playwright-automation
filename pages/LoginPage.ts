@@ -17,13 +17,26 @@ export class LoginPage {
     this.passwordInput = page.locator('input[data-qa="login-password"]');
     this.loginButton = page.locator('button[data-qa="login-button"]');
 
-    this.errorMessage = page.getByText('Your email or password is incorrect!');
+    this.errorMessage = page.locator(
+      'p:has-text("Your email or password is incorrect")'
+    );
   }
 
 
-  async navigate(): Promise<void> {
-    await this.page.goto('/login');
-  }
+ async navigate(): Promise<void> {
+
+  await this.page.goto('/login', {
+    waitUntil: 'domcontentloaded',
+    timeout: 60000
+  });
+
+  await expect(
+    this.page.locator('input[data-qa="login-email"]')
+  ).toBeVisible({
+    timeout: 30000
+  });
+
+}
 
 
   async login(email: string, password: string): Promise<void> {
@@ -43,7 +56,7 @@ export class LoginPage {
   async verifyLoginError(): Promise<void> {
 
     await expect(this.errorMessage)
-      .toContainText('Your email or password is incorrect!');
+      .toContainText('Your email or password is incorrect');
 
   }
 
