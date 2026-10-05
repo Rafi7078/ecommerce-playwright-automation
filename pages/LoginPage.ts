@@ -23,9 +23,20 @@ export class LoginPage {
   }
 
 
-  async navigate(): Promise<void> {
-    await this.page.goto('/login');
-  }
+ async navigate(): Promise<void> {
+
+  await this.page.goto('/login', {
+    waitUntil: 'domcontentloaded',
+    timeout: 60000
+  });
+
+  await expect(
+    this.page.locator('input[data-qa="login-email"]')
+  ).toBeVisible({
+    timeout: 30000
+  });
+
+}
 
 
   async login(email: string, password: string): Promise<void> {

@@ -17,7 +17,6 @@ export class ProductPage {
       timeout: 60000
     });
 
-
     await expect(
       this.page.locator('#search_product')
     ).toBeVisible({
@@ -39,6 +38,8 @@ export class ProductPage {
 
     const searchBox = this.page.locator('#search_product');
 
+    const searchButton = this.page.locator('#submit_search');
+
 
     await expect(searchBox)
       .toBeVisible({
@@ -49,30 +50,23 @@ export class ProductPage {
     await searchBox.fill(productName);
 
 
-    await this.page
-      .locator('#submit_search')
-      .click({
-        noWaitAfter: true
-      });
-
-
-    // Verify that search URL has changed.
-    // This does not wait for every ad/image/script to finish loading.
-    await expect(this.page)
-      .toHaveURL(
-        /products\?search=/,
-        {
-          timeout: 30000
-        }
-      );
-
-
-    // Verify actual search results are displayed.
-    await expect(
-      this.page.locator('.productinfo').first()
-    ).toBeVisible({
-      timeout: 30000
+    await searchButton.click({
+      noWaitAfter: true
     });
+
+
+    const searchedProduct = this.page
+      .locator('.productinfo')
+      .filter({
+        hasText: productName
+      })
+      .first();
+
+
+    await expect(searchedProduct)
+      .toBeVisible({
+        timeout: 30000
+      });
 
   }
 
@@ -88,7 +82,9 @@ export class ProductPage {
 
 
     await expect(product)
-      .toBeVisible();
+      .toBeVisible({
+        timeout: 10000
+      });
 
   }
 
@@ -104,11 +100,12 @@ export class ProductPage {
 
 
     await expect(product)
-      .toBeVisible();
+      .toBeVisible({
+        timeout: 10000
+      });
 
 
-    await product
-      .scrollIntoViewIfNeeded();
+    await product.scrollIntoViewIfNeeded();
 
 
     const viewButton = this.page
@@ -117,7 +114,9 @@ export class ProductPage {
 
 
     await expect(viewButton)
-      .toBeVisible();
+      .toBeVisible({
+        timeout: 10000
+      });
 
 
     await viewButton.click({
@@ -125,13 +124,11 @@ export class ProductPage {
     });
 
 
-    await expect(this.page)
-      .toHaveURL(
-        /product_details/,
-        {
-          timeout: 30000
-        }
-      );
+    await expect(
+      this.page.locator('.product-information')
+    ).toBeVisible({
+      timeout: 30000
+    });
 
   }
 
@@ -147,31 +144,73 @@ export class ProductPage {
 
 
     await expect(product)
-      .toBeVisible();
+      .toBeVisible({
+        timeout: 15000
+      });
+
+
+    await product.scrollIntoViewIfNeeded();
 
 
     await product.hover();
 
 
+    // Use only the visible Add to Cart button
     const addToCartButton = product
-      .locator('.add-to-cart')
+      .locator('a.add-to-cart:visible')
       .first();
 
 
     await expect(addToCartButton)
-      .toBeVisible();
+      .toBeVisible({
+        timeout: 10000
+      });
 
 
     await addToCartButton.click();
 
 
+    // Add-to-cart modal
+    const cartModal = this.page.locator('#cartModal');
+
+
+    await expect(cartModal)
+      .toBeVisible({
+        timeout: 15000
+      });
+
+
     await expect(
-      this.page.getByText(
+      cartModal.getByText(
         'Your product has been added to cart'
       )
     ).toBeVisible({
       timeout: 10000
     });
+
+
+    // Continue Shopping button
+    const continueShoppingButton = cartModal
+      .getByRole('button', {
+        name: 'Continue Shopping'
+      });
+
+
+    await expect(continueShoppingButton)
+      .toBeVisible({
+        timeout: 10000
+      });
+
+
+    await continueShoppingButton.click();
+
+
+    // Important:
+    // wait until modal is completely closed
+    await expect(cartModal)
+      .toBeHidden({
+        timeout: 15000
+      });
 
   }
 
