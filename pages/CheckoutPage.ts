@@ -28,4 +28,15 @@ export class CheckoutPage {
 
   }
 
+  async placeOrder(): Promise<void>{
+
+    await this.page
+      .getByRole('link', {name:'Place Order'})
+      .click();
+
+
+    await this.page.waitForURL(/payment/);
+
+}
+
 }
